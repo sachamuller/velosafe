@@ -10,6 +10,9 @@ packages = [{include = "velosafe"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 ruff = "^0.0.209"
+geopandas = "^0.12.2"
+pandas = "^1.5.2"
+matplotlib = "^3.6.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
