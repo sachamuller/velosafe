@@ -25,9 +25,13 @@ def viz_page():
             "Avec une nette augmentation des morts chez les cyclistes ces 5 dernières années, les décideurs publics réfléchissent de plus en plus à un aménagement de l'espace urbain pour assurer plus de sécurité aux usagers."
         )
 
-    selection = st.selectbox("Sélectionner la donnée à afficher", options=["Accidents de vélos", "Pistes cyclables"])
+    selection = st.selectbox(
+        "Sélectionner la donnée à afficher",
+        options=["Accidents de vélos", "Pistes cyclables", "Accidents de vélos / Km de piste cyclables"],
+    )
     data1 = pd.read_csv("data/nb_accidents_velos2021_dep.csv")
     data2 = pd.read_csv("data/communes_with_bike_length_prepared_by_insee_com_prepared.csv")
+    data3 = pd.read_csv("data/comparaison_ratio.csv")
     with open("data/departements.geojson", "r") as file:
         geodata = json.load(file)
 
@@ -38,6 +42,10 @@ def viz_page():
     elif selection == "Pistes cyclables":
         fig2 = plot_france_map_bikelane(data2, geodata)
         st.plotly_chart(fig2, use_container_width=True)
+
+    elif selection == "Accidents de vélos / Km de piste cyclables":
+        fig22 = plot_france_map_ratio(data3, geodata)
+        st.plotly_chart(fig22, use_container_width=True)
 
     # df_cyclable = gpd.read_file("data/france-20230101.geojson")
     # fig3 = plot_bikelane(df_cyclable, "PISTE CYCLABLE")
@@ -186,6 +194,7 @@ def analyse_page():
     # gravite = df_analyse['grav'].value_counts().index
     # port_casque = df_analyse['casque'].value_counts().index
 
+    # df_analyse["Nombre"] = [1 / (18200000) if c == "Sans casque" else 1 / (7600000) for c in df_analyse["casque"]]
     df_analyse["Nombre"] = 1
     fig8 = plot_casque(df_analyse)
     st.plotly_chart(fig8, use_container_width=True)
@@ -265,6 +274,36 @@ def plot_france_map_bikelane(data: pd.DataFrame, geodata: dict):
     fig.update_layout(coloraxis_colorbar=dict(title="Km de pistes cyclables"))
 
     fig.update_traces(hovertemplate="Dep: %{location} <br>KM de pistes cyclables: %{z}")
+
+    return fig
+
+
+@st.cache
+def plot_france_map_ratio(data: pd.DataFrame, geodata: dict):
+    fig = px.choropleth(
+        data,
+        geojson=geodata,
+        featureidkey="properties.code",
+        locations="dep",
+        color=np.log10(data["Ratio"]),
+        color_continuous_scale="Inferno",
+        title="Ratio du nombre d'accidents par km de pistes cyclables en 2021",
+        custom_data=np.array(["Ratio"]),
+        height=450,
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
+
+    # fig.update_layout(coloraxis_colorbar=dict(title="Ratio")
+
+    fig.update_layout(
+        coloraxis_colorbar=dict(
+            title="Ratio",
+            tickvals=[-2, -1, 0],
+            ticktext=["0.01", "0.1", "1"],
+        )
+    )
+
+    fig.update_traces(hovertemplate="Dep: %{location} <br>Ratio: %{customdata[0]}")
 
     return fig
 
