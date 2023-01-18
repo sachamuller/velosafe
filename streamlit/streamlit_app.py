@@ -22,7 +22,7 @@ def viz_page():
             "L'étude suivante présente un état des lieux des accidents impliquant des vélos sur le territoire français et des solutions proposées afin de réduire le nombre d'accidents. "
         )
         st.write(
-            "Avec une nette augmentation des morts de cyclistes ces 5 dernières années, les décideurs publics réfléchissent de plus en plus à un aménagement de l'espace urbain pour assurer plus de sécurité aux usagers."
+            "Avec une nette augmentation des morts chez les cyclistes ces 5 dernières années, les décideurs publics réfléchissent de plus en plus à un aménagement de l'espace urbain pour assurer plus de sécurité aux usagers."
         )
 
     selection = st.selectbox("Sélectionner la donnée à afficher", options=["Accidents de vélos", "Pistes cyclables"])
@@ -81,8 +81,14 @@ def analyse_page():
     fig3 = plot_category(acc_by_cat)
     st.plotly_chart(fig3, use_container_width=True)
 
-    st.markdown("**Hello**")
+    st.markdown(
+        "Deux types de routes apparaissent comme étant les plus dangereuses **les routes départementales** et **les voies communales**. A elles deux, elles représentent près de **94%** des lieux d'accidents pour les cyclistes. Ce sont en effet les voies les plus fréquentées par les cyclistes."
+    )
+    st.markdown(
+        "Un autre constat transparaît du graphique : la majeure partie des accidents de vélos ont lieu en milieu urbain. C'est donc aux maires qu'incombe la responsabilité d'aménager le territoire pour sécuriser les cyclistes."
+    )
 
+    st.markdown("#")
     st.subheader("2. Les conditions atmosphériques")
     # Analyse de l'atmosphère
     df_analyse["atm"].replace(
@@ -106,7 +112,12 @@ def analyse_page():
     fig4 = plot_atm(acc_by_atm)
     st.plotly_chart(fig4, use_container_width=True)
 
-    st.subheader("3. L'âge'du cycliste")
+    st.markdown(
+        "Contrairement à une idée reçue, la plupart des accidents impliquant des cyclistes se produisent dans des **conditions météorologiques favorables**, dans près de **84%** des cas. **La pluie légère ne représente que 4% des accidents**, cela s'expliquant par une vigilance accrue des cyclistes."
+    )
+    st.markdown("#")
+
+    st.subheader("3. L'âge du cycliste")
     # Analyse de l'age et du sexe
     year = datetime.date.today().year
     df_analyse["age"] = df_analyse["an_nais"].apply(lambda x: year - x)
@@ -116,6 +127,11 @@ def analyse_page():
     fig5 = plot_age(acc_by_age)
     st.plotly_chart(fig5, use_container_width=True)
 
+    st.markdown(
+        "La répartition des âges des cyclistes accidentés laisse apparaître **deux pics**, alors que l'on s'attendait plutôt à observer une courbe plus proche d'une gaussienne. Le premier pic correspond aux cyclistes ayant entre 20 et 35 ans, dans la force de l'âge, qui vont probablement prendre plus de risques à vélo, et donc subir plus d'accidents. Le second pic correspond aux cyclistes ayant 50 ans passés : ces personnes ont une forme physique qui tend à devenir plus fragile avec les années. On constate donc logiquement une diminution progressive de l'usage du vélo à partir de 60 ans, qui se traduit alors par une diminution des accidents. "
+    )
+    st.markdown("#")
+
     st.subheader("4. Le sexe du cycliste")
 
     df_analyse["sexe"].replace({-1: "Non renseigné", 1: "Masculin", 2: "Féminin"}, inplace=True)
@@ -124,6 +140,15 @@ def analyse_page():
 
     fig6 = plot_sex(acc_by_sex)
     st.plotly_chart(fig6, use_container_width=True)
+
+    st.markdown(
+        "La conclusion sur le sexe des cyclistes accidentés est immédiate : **Les hommes sont près de 2.5x fois plus à même de subir ou provoquer un accident que les femmes**. Cela peut s'expliquer par deux possibles raisons. Premièrement, les hommes seraient moins conscients des risques encourus en se déplaçant à vélo. Deuxièmement, l'usage du vélo pour se déplacer seraient moins populaire chez les femmes."
+    )
+
+    st.markdown(
+        "Il est probable que ces deux facteurs expliquent conjointement les résultats observés sur le graphique ci-dessus."
+    )
+    st.markdown("#")
 
     st.subheader("5. La vitesse maximale autorisée")
     # Analyse de la vitesse max
@@ -135,7 +160,13 @@ def analyse_page():
     fig7 = plot_vitesse(acc_by_vma)
     st.plotly_chart(fig7, use_container_width=True)
 
+    st.markdown(
+        "Dans près de **67% des cas**, les accidents se déroulent sur des routes limitées à 50km/h. Ce chiffre n'est pas étonnant car ce sont les routes les plus fréquentées par les cyclistes et également les routes les plus dangereuses en ville. De manière plus surprenante, on observe que 15% des accidents ont lieu dans des zones limitées à 30km/h, zones qui sont pourtant réputer sûre puisque les véhicules roulent très doucement."
+    )
+    st.markdown("#")
+
     st.subheader("6. Le port du casque")
+
     # Analyse du port du casque
     df_analyse["casque"] = 0
 
@@ -159,7 +190,13 @@ def analyse_page():
     fig8 = plot_casque(df_analyse)
     st.plotly_chart(fig8, use_container_width=True)
 
-    st.success("Recommandations:")
+    st.markdown(
+        "Nos conclusions sur le port du casque sont vraiment surprenantes. On constate certes que le nombre de personnes portant des casques est bien inférieur à celui des personnes se déplaçant à vélo sans casque. Néanmoins, on dénombre autant de personnes tuées avec et sans casque, ce qui signifie que celui-ci n'a pas de réelle influence sur le taux de mortalité des cyclistes. Ces résultats sont toutefois à nuancer. On compare ici le nombre des accidents des personnes avec et sans casque. Or, pour avoir une donnée plus réprésentative, il faudrait diviser ces résultats par le nombre de cyclistes avec et sans casque afin de voir quelle proportion de cycliste équipé ou non est suceptible d'avoir un accident."
+    )
+    st.markdown("#")
+    st.success(
+        "Recommandations: Nous conseillons aux décideurs politiques locaux de tourner leur politique vers un aménagement des voies de circulation pour les cyclistes (notamment avec la création de piste cyclable) et de sensibiliser la population (et en particulier les hommes de 20-30ans) sur les risques encourus lors les déplacements à vélo"
+    )
 
 
 def simulation_page():
@@ -295,7 +332,7 @@ def plot_casque(data):
         color="casque",
         barmode="group",
         labels={"grav": "Gravité de l'accident", "Nombre": "Nombre d'accidents"},
-        title="Réparition des accidents par gravité selon le port ou non du casque",
+        title="Répatition des accidents par gravité selon le port ou non du casque",
     )
     return fig
 
