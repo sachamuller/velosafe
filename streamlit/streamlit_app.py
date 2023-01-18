@@ -1,3 +1,4 @@
+import datetime
 import json
 import time
 
@@ -9,13 +10,15 @@ import plotly.express as px
 
 import streamlit as st
 
+st.set_page_config(page_title="Accidentologie des vélos en France", page_icon="🔥")
+
 
 def viz_page():
     st.write("# Accidentologie des vélos en France")
     st.write("---")
     col1, col2 = st.columns(2)
     with col1:
-        st.image("data/Undraw.png")
+        st.image("data/Undraw0.png")
     with col2:
         st.write(
             "L'étude suivante présente un état des lieux des accidents impliquant des vélos sur le territoire français et des solutions proposées afin de réduire le nombre d'accidents. "
@@ -48,12 +51,19 @@ def analyse_page():
     st.write("---")
     col1, col2 = st.columns(2)
     with col1:
-        st.write("Hello")
+        st.write(
+            "Dans cette partie, nous regarderons les principaux facteurs jouant en rôle dans la probabilité d'occurence des accidents à vélo et nous chercherons à déterminer quantitafier leur influence."
+        )
+        st.write(
+            "Ces facteurs sont les suivants: le type de route, les conditions atmosphériques, le sexe et l'age des cyclistes, la vitesse maximale autorisée sur la route empruntée et le port du casque par le cycliste."
+        )
     with col2:
         st.image("data/Undraw.png")
 
+    st.subheader("1. Le type de route")
     df_analyse = pd.read_csv("data/no_missing_values_data_viz_velo 2.csv", sep=",")
 
+    # Analyse type de la route
     df_analyse["catr"].replace(
         {
             1: "Autoroute",
@@ -73,12 +83,85 @@ def analyse_page():
     fig3 = plot_category(acc_by_cat)
     st.plotly_chart(fig3, use_container_width=True)
 
-    df_analyse['atm'].replace({-1 : 'Non renseigné', 1: 'Normale', 2: 'Pluie légère', 3: 'Pluie forte', 4: 'Neige - grêle', 5: 'Brouillard - fumée', 6: 'Vent fort - tempête', 7: 'Temps éblouissant', 8: 'Temps couvert', 9: 'Autres'}, inplace = True)
-    acc_by_atm = df_analyse[['Num_Acc', 'atm']].groupby(by = ['atm']).count()
-    acc_by_atm['percent'] = (acc_by_atm['Num_Acc'] / acc_by_atm['Num_Acc'].sum()) * 100
+    st.markdown("**Hello**")
+
+    st.subheader("2. Les conditions atmosphériques")
+    # Analyse de l'atmosphère
+    df_analyse["atm"].replace(
+        {
+            -1: "Non renseigné",
+            1: "Normale",
+            2: "Pluie légère",
+            3: "Pluie forte",
+            4: "Neige - grêle",
+            5: "Brouillard - fumée",
+            6: "Vent fort - tempête",
+            7: "Temps éblouissant",
+            8: "Temps couvert",
+            9: "Autres",
+        },
+        inplace=True,
+    )
+    acc_by_atm = df_analyse[["Num_Acc", "atm"]].groupby(by=["atm"]).count()
+    acc_by_atm["percent"] = (acc_by_atm["Num_Acc"] / acc_by_atm["Num_Acc"].sum()) * 100
 
     fig4 = plot_atm(acc_by_atm)
     st.plotly_chart(fig4, use_container_width=True)
+
+    st.subheader("3. L'âge'du cycliste")
+    # Analyse de l'age et du sexe
+    year = datetime.date.today().year
+    df_analyse["age"] = df_analyse["an_nais"].apply(lambda x: year - x)
+    acc_by_age = df_analyse[["Num_Acc", "age"]].groupby(by=["age"]).count()
+    acc_by_age["percent"] = (acc_by_age["Num_Acc"] / acc_by_age["Num_Acc"].sum()) * 100
+
+    fig5 = plot_age(acc_by_age)
+    st.plotly_chart(fig5, use_container_width=True)
+
+    st.subheader("4. Le sexe du cycliste")
+
+    df_analyse["sexe"].replace({-1: "Non renseigné", 1: "Masculin", 2: "Féminin"}, inplace=True)
+    acc_by_sex = df_analyse[["Num_Acc", "sexe"]].groupby(by=["sexe"]).count()
+    acc_by_sex["percent"] = (acc_by_sex["Num_Acc"] / acc_by_sex["Num_Acc"].sum()) * 100
+
+    fig6 = plot_sex(acc_by_sex)
+    st.plotly_chart(fig6, use_container_width=True)
+
+    st.subheader("5. La vitesse maximale autorisée")
+    # Analyse de la vitesse max
+    df_analyse["vma"].replace([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15], value=20, inplace=True)
+    df_analyse["vma"].replace([110, 120, 180, 300, 500, 600], value=90, inplace=True)
+    acc_by_vma = df_analyse[["Num_Acc", "vma"]].groupby(by=["vma"]).count()
+    acc_by_vma["percent"] = (acc_by_vma["Num_Acc"] / acc_by_vma["Num_Acc"].sum()) * 100
+
+    fig7 = plot_vitesse(acc_by_vma)
+    st.plotly_chart(fig7, use_container_width=True)
+
+    st.subheader("6. Le port du casque")
+    # Analyse du port du casque
+    df_analyse["casque"] = 0
+
+    for i in range(len(df_analyse)):
+        if df_analyse.secu1[i] == 2 or df_analyse.secu2[i] == 2 or df_analyse.secu3[i] == 2:
+            df_analyse.casque[i] = 1
+    df_analyse = df_analyse[df_analyse.grav != -1]
+    df_analyse.grav.replace({1: "Indemne", 2: "Tué", 3: "Blessé hospitalisé", 4: "Blessé léger"}, inplace=True)
+    df_analyse.casque.replace({0: "Sans casque", 1: "Avec casque"}, inplace=True)
+    # g = df_analyse.groupby('casque')
+    # c_sans_casque = g.get_group("Sans casque")['grav'].value_counts()
+    # c_avec_casque = g.get_group("Avec casque")['grav'].value_counts()
+
+    # c_sans_casque=100*c_sans_casque/(c_sans_casque.sum())
+    # c_avec_casque=100*c_avec_casque/(c_avec_casque.sum())
+
+    # gravite = df_analyse['grav'].value_counts().index
+    # port_casque = df_analyse['casque'].value_counts().index
+
+    df_analyse["Nombre"] = 1
+    fig8 = plot_casque(df_analyse)
+    st.plotly_chart(fig8, use_container_width=True)
+
+    st.success("Recommandations:")
 
 
 def simulation_page():
@@ -155,17 +238,64 @@ def plot_category(data):
         x=data.index,
         y="percent",
         labels={"catr": "Type de routes", "percent": "Pourcentage d'accidents"},
-        title="XXX",
+        title="Répartition des accidents selon la catégorie de la route",
     )
     return fig
+
 
 def plot_atm(data):
     fig = px.bar(
         data,
         x=data.index,
         y="percent",
-        labels={"catr": "Type de routes", "percent": "Pourcentage d'accidents"},
-        title="XXX",
+        labels={"atm": "Météo", "percent": "Pourcentage d'accidents"},
+        title="Répartition des accidents selon la météo",
+    )
+    return fig
+
+
+def plot_age(data):
+    fig = px.bar(
+        data,
+        x=data.index,
+        y="percent",
+        labels={"age": "Age", "percent": "Pourcentage d'accidents"},
+        title="Répartition des accidents selon l'age",
+    )
+    return fig
+
+
+def plot_sex(data):
+    fig = px.bar(
+        data,
+        x=data.index,
+        y="percent",
+        labels={"sexe": "Sexe", "percent": "Pourcentage d'accidents"},
+        title="Répartition des accidents selon le sexe",
+    )
+    return fig
+
+
+def plot_vitesse(data):
+    fig = px.bar(
+        data,
+        x=data.index,
+        y="percent",
+        labels={"vma": "Vitesse maximale autorisée (en km/h)", "percent": "Pourcentage d'accidents"},
+        title="Répartition des accidents selon la vitesse maximale autorisée",
+    )
+    return fig
+
+
+def plot_casque(data):
+    fig = px.bar(
+        data,
+        x="grav",
+        y="Nombre",
+        color="casque",
+        barmode="group",
+        labels={"grav": "Gravité de l'accident", "Nombre": "Nombre d'accidents"},
+        title="Réparition des accidents par gravité selon le port ou non du casque",
     )
     return fig
 
