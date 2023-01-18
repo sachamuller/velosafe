@@ -24,7 +24,7 @@ class RemoteFile:
         :return: The file the dataset was downloaded to.
         """
         if self.filename:
-            dest_file = Path(dest_dir) / self.filename
+            dest_file = Path(dest_dir).expanduser() / self.filename
         if dest_file.exists() and self.md5sum is not None and self.checksum(dest_file) == self.md5sum:
             return dest_file
         # Ensure the directory we'll put the downloaded file in actually exists
