@@ -1,12 +1,14 @@
 import geopandas as gpd
 
 
-def fast_compute_bike_lane_length_per_commune(df_bike_lanes:gpd.GeoDataFrame, df_communes:gpd.GeoDataFrame, epsg:int=27561)-> gpd.GeoDataFrame:
+def fast_compute_bike_lane_length_per_commune(
+    df_bike_lanes: gpd.GeoDataFrame, df_communes: gpd.GeoDataFrame, epsg: int = 27561
+) -> gpd.GeoDataFrame:
     """_summary_
 
     Args:
         df_bike_lanes (gpd.GeoDataFrame): geopandas dataframe containing the geometry of all bike lanes in france
-        df_communes (gpd.GeoDataFrame): geopandas dataframe containing the shape of french communes 
+        df_communes (gpd.GeoDataFrame): geopandas dataframe containing the shape of french communes
         epsg (int, optional): EPSG code specifying output projection. Defaults to 27561.
 
     Returns:
@@ -28,9 +30,13 @@ def fast_compute_bike_lane_length_per_commune(df_bike_lanes:gpd.GeoDataFrame, df
 
     # Project to planar coordinate system
     cycling_lanes_intersected["length"] = cycling_lanes_intersected.lane.to_crs(epsg=epsg).length
-    return cycling_lanes_intersected
 
+    # Sum the length of the bike lanes for each commune
+    gb = cycling_lanes_intersected.groupby("insee_com")
+    cycling_lanes_length_per_commun = gb.agg("sum")
+    cycling_lanes_length_per_commun = cycling_lanes_length_per_commun.reset_index()  # index insee_com as a column
 
+    return cycling_lanes_length_per_commun
 
 
 if __name__ == "__main__":
@@ -42,4 +48,4 @@ if __name__ == "__main__":
 
     cycling_lane_length = fast_compute_bike_lane_length_per_commune(sample_bike_lanes, sample_communes)
     print(cycling_lane_length)
-    df_communes.to_csv("data/communes_with_bike_length.csv")
+    cycling_lane_length.to_csv("data/communes_with_bike_length.csv", index=False)
