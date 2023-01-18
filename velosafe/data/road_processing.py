@@ -10,7 +10,7 @@ from shapely.geometry import shape
 from shapely.ops import transform
 
 
-def compute_road_length_per_commune(
+def build_roads_features(
     commune_geojson_path: str, road_shapefile_path: str, communes_crs: str = "EPSG:4326", roads_crs: str = "EPSG:2154"
 ):
     with open(commune_geojson_path) as f:
@@ -37,6 +37,7 @@ def compute_road_length_per_commune(
 
     road_length_df = pd.DataFrame({"insee_com": np.take(insee_com, res[0]), "road length": lengths})
     road_length_df = road_length_df.groupby("insee_com").agg({"road length": "sum"})
+    road_length_df.reset_index(inplace=True)
     return road_length_df
 
 
@@ -46,5 +47,5 @@ if __name__ == "__main__":
     road_shapefile_path = "data/ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/\
         1_DONNEES_LIVRAISON_2022-01-00175/R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp"
 
-    road_length_df = compute_road_length_per_commune(commune_geojson_path, road_shapefile_path)
-    road_length_df.to_csv("data/road_length.csv", index=True)
+    road_length_df = build_roads_features(commune_geojson_path, road_shapefile_path)
+    road_length_df.to_csv("data/roads_length.csv", index=True)

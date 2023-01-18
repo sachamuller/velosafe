@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 
 
-def get_bike_lanes_features(df_bike_lanes: gpd.GeoDataFrame, epsg: int = 27561) -> pd.DataFrame:
+def build_bike_lanes_features(df_bike_lanes: gpd.GeoDataFrame, epsg: int = 27561) -> pd.DataFrame:
     """Computes a dataframe containing some useful characteristics of the bike lanes in each french commune
 
     Args:
@@ -146,5 +146,5 @@ if __name__ == "__main__":
     df_bike_lanes = gpd.read_file("data/france-20211201.geojson")
     print("Loaded data")
 
-    df = get_bike_lanes_features(df_bike_lanes)
+    df = build_bike_lanes_features(df_bike_lanes)
     df.to_csv("data/bike_lane_features.csv", index=False)
