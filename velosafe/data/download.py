@@ -9,7 +9,7 @@ from tqdm import tqdm
 @dataclass
 class RemoteFile:
     url: str
-    md5_hash: str | None = None
+    md5sum: str | None = None
 
     def download(self, dest_file: str | Path, show_progress: bool = True, chunk_size: int = 1024 * 1024) -> Path:
         """
@@ -23,6 +23,8 @@ class RemoteFile:
         :return: The file the dataset was downloaded to.
         """
         dest_file = Path(dest_file)
+        if dest_file.exists() and self.md5sum is not None and self.checksum(dest_file) == self.md5sum:
+            return dest_file
         # Ensure the directory we'll put the downloaded file in actually exists
         dest_file.parent.mkdir(parents=True, exist_ok=True)
         with urlopen(self.url) as response:
@@ -32,13 +34,13 @@ class RemoteFile:
                     while chunk := response.read(chunk_size):
                         db_file.write(chunk)
                         progress_bar.update(chunk_size)
-            if self.md5_hash is not None and self.checksum(dest_file) != self.md5_hash:
+            if self.md5sum is not None and self.checksum(dest_file) != self.md5sum:
                 dest_file.unlink()
                 raise ValueError("File was corrupted during download. Please try again.")
             return dest_file
 
     @classmethod
-    def checksum(file: Path) -> bytes:
+    def checksum(file: Path) -> str:
         """
         Compute the md5 checksum of a file.
         """
@@ -46,4 +48,4 @@ class RemoteFile:
         with open(file, "rb") as f:
             while chunk := f.read(128 * hasher.block_size):
                 hasher.update(chunk)
-        return hasher.digest()
+        return hasher.hexdigest()

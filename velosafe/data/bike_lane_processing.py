@@ -12,7 +12,8 @@ def fast_compute_bike_lane_length_per_commune(
         epsg (int, optional): EPSG code specifying output projection. Defaults to 27561.
 
     Returns:
-        gpd.GeoDataFrame: the communes dataframe with a new column containing the total length of bike lanes in each commune
+        gpd.GeoDataFrame: the communes dataframe with a new column containing the total length of bike lanes
+        in each commune
     """
     ## Compute intersection
     # Join cycling lanes to communes if they intersect
