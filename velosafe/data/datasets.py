@@ -1,4 +1,4 @@
-from .download import RemoteFile
+from .download import RemoteFile, ZipRemoteFile
 
 
 class Datasets:
@@ -36,4 +36,14 @@ class Datasets:
         "https://raw.githubusercontent.com/gregoiredavid/france-geojson/45daa2d069a8da3ec4efb6672388fc3dc02e36e2/departements.geojson",
         filename="accident_departments.csv",
         md5sum="267c93d0674d6536c3b88702761ad127",
+    )
+    ROADS = ZipRemoteFile(
+        url="https://wxs.ign.fr/pfinqfa9win76fllnimpfmbi/telechargement/inspire/ROUTE500-France-2021$ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/file/ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03.7z",
+        filename="ROUTE_500.7z",
+        md5sum="e336ce8b1b94318280fec8b96de9ed58",
+        foldername_after_unzipping="ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03",
+        path_files_to_keep={
+            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp": "roads.shp",
+            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shx": "roads.shx"
+        },
     )

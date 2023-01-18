@@ -1,8 +1,12 @@
 import hashlib
+import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict
 from urllib.request import urlopen
 
+import py7zr
 from tqdm import tqdm
 
 
@@ -12,7 +16,9 @@ class RemoteFile:
     filename: str | Path
     md5sum: str | None = None
 
-    def download(self, dest_dir: str | Path, show_progress: bool = True, chunk_size: int = 1024 * 1024) -> Path:
+    def download(
+        self, dest_dir: str | Path = "data", show_progress: bool = True, chunk_size: int = 1024 * 1024
+    ) -> Path:
         """
         Download the file located at url to dest_file.
 
@@ -55,3 +61,42 @@ class RemoteFile:
             while chunk := f.read(128 * hasher.block_size):
                 hasher.update(chunk)
         return hasher.hexdigest()
+
+    def was_already_downloaded(self, parent_folder):
+        return os.path.exists(os.path.join(parent_folder, self.filename))
+
+
+class ZipRemoteFile(RemoteFile):
+    def __init__(
+        self,
+        url: str,
+        filename: str,
+        md5sum: str | None = None,
+        foldername_after_unzipping: str = "",
+        foldername: str = "",
+        path_files_to_keep: Dict[str, str] = {},
+    ):
+        super().__init__(url, filename, md5sum)
+        self.foldername_after_unzipping = foldername_after_unzipping
+        self.foldername = foldername
+        self.path_files_to_keep = path_files_to_keep
+
+    # foldername_after_unzipping: str | Path
+    # foldername: str | Path
+    # path_files_to_keep: Dict[str, str]  # key is path when unzipping, value is the new path
+
+    def was_already_downloaded(self, parent_folder):
+        for file_to_keep in self.path_files_to_keep.values():
+            if not os.path.exists(os.path.join(parent_folder, file_to_keep)):
+                return False
+        return True
+
+    def unzip_7zip_file(self, parent_folder="data"):
+        with py7zr.SevenZipFile(os.path.join(parent_folder, self.filename), "r") as zip_ref:
+            zip_ref.extractall(parent_folder)
+        os.remove(os.path.join(parent_folder, self.filename))
+
+    def keep_only_necessary_files(self, parent_folder="data"):
+        for old_name, new_name in self.path_files_to_keep.items():
+            shutil.copy(os.path.join(parent_folder, old_name), os.path.join(parent_folder, new_name))
+        shutil.rmtree(os.path.join(parent_folder, self.foldername_after_unzipping))
