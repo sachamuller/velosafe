@@ -81,10 +81,6 @@ class ZipRemoteFile(RemoteFile):
         self.foldername = foldername
         self.path_files_to_keep = path_files_to_keep
 
-    # foldername_after_unzipping: str | Path
-    # foldername: str | Path
-    # path_files_to_keep: Dict[str, str]  # key is path when unzipping, value is the new path
-
     def was_already_downloaded(self, parent_folder):
         for file_to_keep in self.path_files_to_keep.values():
             if not os.path.exists(os.path.join(parent_folder, file_to_keep)):

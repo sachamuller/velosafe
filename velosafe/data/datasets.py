@@ -11,11 +11,14 @@ class Datasets:
         "https://www.data.gouv.fr/fr/datasets/r/69282d41-eed1-4d34-8882-e4f449afabb9",
         filename="cycling_lanes.geojson",
         md5sum="09320ffad3f01665f2a0be2252b32c67",
+        # Documentation : https://www.velo-territoires.org/wp-content/uploads/2021/09/AC_NOTICE_NUMERISATION_0.3.3.pdf
     )
     ACCIDENTS_USERS = RemoteFile(
         "https://www.data.gouv.fr/fr/datasets/r/ba5a1956-7e82-41b7-a602-89d7dd484d7a",
         filename="accident_users.csv",
         md5sum="6534aec5a61c7fd980c2aa94882f4b37",
+        # Documentation for all the ACCIDENTS datasets (url will download a pdf) :
+        # https://static.data.gouv.fr/resources/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2021/20221104-163105/description-des-bases-de-donnees-annuelles-2021.pdf
     )
     ACCIDENTS_VEHICULES = RemoteFile(
         "https://www.data.gouv.fr/fr/datasets/r/0bb5953a-25d8-46f8-8c25-b5c2f5ba905e",
@@ -34,7 +37,7 @@ class Datasets:
     )
     DEPARTMENTS = RemoteFile(
         "https://raw.githubusercontent.com/gregoiredavid/france-geojson/45daa2d069a8da3ec4efb6672388fc3dc02e36e2/departements.geojson",
-        filename="accident_departments.csv",
+        filename="departments.csv",
         md5sum="267c93d0674d6536c3b88702761ad127",
     )
     ROADS = ZipRemoteFile(
@@ -43,7 +46,10 @@ class Datasets:
         md5sum="e336ce8b1b94318280fec8b96de9ed58",
         foldername_after_unzipping="ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03",
         path_files_to_keep={
-            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp": "roads.shp",
-            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shx": "roads.shx"
+            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/\
+                R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp": "roads.shp",
+            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/\
+                R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shx": "roads.shx",
         },
+        # Documentation : https://geoservices.ign.fr/sites/default/files/2021-12/DC_ROUTE500_3-0.pdf
     )
