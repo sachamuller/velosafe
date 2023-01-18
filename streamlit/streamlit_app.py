@@ -1,14 +1,12 @@
+"""Streamlit application"""
 import datetime
 import json
-import time
-
-import geopandas as gpd
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 
 import streamlit as st
+from velosafe.models import load_model
 
 st.set_page_config(page_title="Accidentologie des vélos en France", page_icon="🔥")
 
@@ -169,6 +167,8 @@ def simulation_page():
 
     code_comm = st.text_input("Code commune")
     km_bikelane = st.text_input("Km de pistes cyclables à construire")
+    # Load model
+    model = load_model("/data/model.pkl")
     nb_accidents = np.random.randint(1, 10)
 
     if st.button("Valider"):
