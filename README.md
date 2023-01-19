@@ -10,7 +10,7 @@ Ce package nécessite `python >= 3.10`.
 * Exécutez `pip install .` depuis la racine du projet pour l'installer avec ses dépendances.
 
 ## Quickstart
-* Commencez par télécharger les données et générer les features: `mkdir data && python -m velosafe datagen ./data`. L'opération peut prendre plusieurs minutes à se terminer.
+* Commencez par télécharger les données et générer les features: `mkdir data && python -m velosafe datagen ./data`. L'opération peut prendre plusieurs minutes.
 * Exécutez le code du notebook présent dans `examples` pour mieux comprendre comment utiliser le package.
 
 ## Contribuer
