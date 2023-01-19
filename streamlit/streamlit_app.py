@@ -4,7 +4,6 @@ import json
 import numpy as np
 import pandas as pd
 import plotly.express as px
-
 import streamlit as st
 from velosafe.models import load_model
 
@@ -49,10 +48,10 @@ def viz_page():
         "Sélectionner la donnée à afficher",
         options=["Accidents de vélos", "Pistes cyclables", "Accidents de vélos / Km de piste cyclables"],
     )
-    data1 = pd.read_csv("data/nb_accidents_velos2021_dep.csv")
-    data2 = pd.read_csv("data/communes_with_bike_length_prepared_by_insee_com_prepared.csv")
-    data3 = pd.read_csv("data/comparaison_ratio.csv")
-    with open("data/departements.geojson", "r") as file:
+    data1 = pd.read_csv("./streamlit/resources/nb_accidents_velos2021_dep.csv")
+    data2 = pd.read_csv("./streamlit/resources/communes_with_bike_length_prepared_by_insee_com_prepared.csv")
+    data3 = pd.read_csv("./streamlit/resources/comparaison_ratio.csv")
+    with open("./streamlit/resources/departements.geojson", "r") as file:
         geodata = json.load(file)
 
     if selection == "Accidents de vélos":
@@ -67,10 +66,6 @@ def viz_page():
         fig22 = plot_france_map_ratio(data3, geodata)
         st.plotly_chart(fig22, use_container_width=True)
 
-    # df_cyclable = gpd.read_file("data/france-20230101.geojson")
-    # fig3 = plot_bikelane(df_cyclable, "PISTE CYCLABLE")
-    # st.plotly_chart(fig3, use_container_width=True)
-
 
 def analyse_page():
     st.write("# Analyse des facteurs")
@@ -84,10 +79,10 @@ def analyse_page():
             "Ces facteurs sont les suivants: le type de route, les conditions atmosphériques, le sexe et l'age des cyclistes, la vitesse maximale autorisée sur la route empruntée et le port du casque par le cycliste."
         )
     with col2:
-        st.image("data/Undraw.png")
+        st.image("./streamlit/resources/Undraw.png")
 
     st.subheader("1. Le type de route")
-    df_analyse = pd.read_csv("data/no_missing_values_data_viz_velo 2.csv", sep=",")
+    df_analyse = pd.read_csv("./streamlit/resources/no_missing_values_data_viz_velo 2.csv", sep=",")
 
     # Analyse type de la route
     df_analyse["catr"].replace(
@@ -204,17 +199,6 @@ def analyse_page():
     df_analyse = df_analyse[df_analyse.grav != -1]
     df_analyse.grav.replace({1: "Indemne", 2: "Tué", 3: "Blessé hospitalisé", 4: "Blessé léger"}, inplace=True)
     df_analyse.casque.replace({0: "Sans casque", 1: "Avec casque"}, inplace=True)
-    # g = df_analyse.groupby('casque')
-    # c_sans_casque = g.get_group("Sans casque")['grav'].value_counts()
-    # c_avec_casque = g.get_group("Avec casque")['grav'].value_counts()
-
-    # c_sans_casque=100*c_sans_casque/(c_sans_casque.sum())
-    # c_avec_casque=100*c_avec_casque/(c_avec_casque.sum())
-
-    # gravite = df_analyse['grav'].value_counts().index
-    # port_casque = df_analyse['casque'].value_counts().index
-
-    # df_analyse["Nombre"] = [1 / (18200000) if c == "Sans casque" else 1 / (7600000) for c in df_analyse["casque"]]
     df_analyse["Nombre"] = 1
     fig8 = plot_casque(df_analyse)
     st.plotly_chart(fig8, use_container_width=True)
@@ -231,9 +215,9 @@ def analyse_page():
 def simulation_page():
     st.write("# Simulation de l'impact de construction de pistes cyclables")
     # Load model
-    model = load_model("./data/model.pkl")
+    model = load_model("./streamlit/resources/model.pkl")
     # Load train data
-    train_data = pd.read_csv("./data/training_data.csv")
+    train_data = pd.read_csv("./streamlit/resources/training_data.csv")
     code_comm = st.text_input("Code commune")
     km_bikelane = st.text_input("Km de pistes cyclables à construire")
     if st.button("Valider"):
@@ -246,16 +230,23 @@ def simulation_page():
                 try:
                     x_test["length"] += float(km_bikelane) * 1000
                     nb_accidents_after = model.predict(x_test)
-                    st.metric(
-                        label="Nombre d'accidents",
-                        value=str(nb_accidents_after[0]),
-                        delta=str(
-                            (nb_accidents_after[0] - nb_accidents_before.values[0])
-                            / nb_accidents_before.values[0]
-                            * 100
+                    if nb_accidents_before.values[0] > 0:
+                        st.metric(
+                            label="Nombre d'accidents",
+                            value=str(nb_accidents_after[0]),
+                            delta="{:.2f}".format(
+                                (nb_accidents_after[0] - nb_accidents_before.values[0])
+                                / nb_accidents_before.values[0]
+                                * 100
+                            )
+                            + "%",
                         )
-                        + "%",
-                    )
+                    else:
+                        st.metric(
+                            label="Nombre d'accidents",
+                            value=str(nb_accidents_after[0]),
+                            delta=str(nb_accidents_after[0] - nb_accidents_before.values[0]) + "accidents",
+                        )
                 except ValueError:
                     st.error("Entrez un nombre flottant de kilomètres.")
 
@@ -276,8 +267,7 @@ def plot_france_map_accidents(data: pd.DataFrame, geodata: dict):
         color_continuous_scale="Magma",
         title="Accidents de vélo par département en 2021",
         height=450,
-        custom_data=np.array(["Nb_Acc"])
-        # hover_name="Nb_Acc",
+        custom_data=np.array(["Nb_Acc"]),
     )
     fig.update_geos(fitbounds="locations", visible=False)
 
@@ -330,8 +320,6 @@ def plot_france_map_ratio(data: pd.DataFrame, geodata: dict):
         height=450,
     )
     fig.update_geos(fitbounds="locations", visible=False)
-
-    # fig.update_layout(coloraxis_colorbar=dict(title="Ratio")
 
     fig.update_layout(
         coloraxis_colorbar=dict(
@@ -409,12 +397,13 @@ def plot_casque(data):
         color="casque",
         barmode="group",
         labels={"grav": "Gravité de l'accident", "Nombre": "Nombre d'accidents"},
-        title="Répatition des accidents par gravité selon le port ou non du casque",
+        title="Répartition des accidents par gravité selon le port ou non du casque",
     )
     return fig
 
 
 def main():
+    """Run the streamlit application."""
     with st.sidebar:
         st.write("# Navigation")
         page = st.radio(label="", options=["Présentation du contexte", "Analyse des facteurs", "Simulation"])
