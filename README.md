@@ -22,3 +22,15 @@ Pour contribuer du code à ce projet:
 * Installez le projet et ses dépendances: `poetry install`.
   
 Pour ajouter des dépendances au projet, utilisez `poetry add` (par exemple `poetry add numpy`).
+
+# Exécution de l'application streamlit
+
+Pour exécuter l'application streamlit :
+* Se placer dans le dossier `velosafe` :
+  ``` cd velosafe ```
+* Taper la commande : 
+ ```shell
+ streamlit run ./streamlit/streamlit_app.py
+ ```
+
+L'application est en ligne à cette adresse : https://clementbr24-velosafe-streamlitstreamlit-app-yuev0p.streamlit.app/
