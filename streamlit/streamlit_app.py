@@ -1,9 +1,11 @@
 """Streamlit application"""
 import datetime
 import json
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
+
 import streamlit as st
 from velosafe.models import load_model
 
@@ -206,6 +208,33 @@ def analyse_page():
     st.markdown(
         "Nos conclusions sur le port du casque sont vraiment surprenantes. On constate certes que le nombre de personnes portant des casques est bien inférieur à celui des personnes se déplaçant à vélo sans casque. Néanmoins, on dénombre autant de personnes tuées avec et sans casque, ce qui signifie que celui-ci n'a pas de réelle influence sur le taux de mortalité des cyclistes. Ces résultats sont toutefois à nuancer. On compare ici le nombre des accidents des personnes avec et sans casque. Or, pour avoir une donnée plus réprésentative, il faudrait diviser ces résultats par le nombre de cyclistes avec et sans casque afin de voir quelle proportion de cycliste équipé ou non est suceptible d'avoir un accident."
     )
+
+    st.markdown("#")
+    st.subheader("7. Le type de trajet")
+
+    df_analyse.trajet.replace(
+        {
+            -1: "Non renseigné",
+            0: "Non renseigné",
+            1: "Domicile – travail",
+            2: "Domicile – école",
+            3: "Courses – achats",
+            4: "Utilisation professionnelle",
+            5: "Promenade – loisirs",
+            9: "Autre",
+        },
+        inplace=True,
+    )
+    acc_by_trajet = df_analyse[["Num_Acc", "trajet"]].groupby(by=["trajet"]).count()
+    acc_by_trajet["percent"] = (acc_by_trajet["Num_Acc"] / acc_by_trajet["Num_Acc"].sum()) * 100
+
+    fig9 = plot_trajet(acc_by_trajet)
+    st.plotly_chart(fig9, use_container_width=True)
+
+    st.markdown(
+        "On constate que **35% des accidents** ont lieu à lors de **promenades ou de balades de loisir**. Ces chiffres peuvent surprendre car ce ne sont pas les trajets les plus effectués par les cyclistes, contrairement au trajet du quotidien pour aller au travail ou chercher les enfants à l'école. Mais ce pourcentage s'explique par une **méconnaissance des chemins empruntés par les cyclistes**. Ces derniers sont donc moins à l'aise avec leur environnement et risque plus fortement de provoquer ou subir un accident. Les efforts des politiques d'aménagement du territoire se sont en effet beaucoup centrés sur la mise en place de signalisation en ville et au niveau des écoles. Il faudrait cependant que **les trajets moins fréquentés soient également aménagés** afin d'aider les cyclistes à prendre connaissance plus facilement de leur environnement."
+    )
+
     st.markdown("#")
     st.success(
         "Recommandations: Nous conseillons aux décideurs politiques locaux de tourner leur politique vers un aménagement des voies de circulation pour les cyclistes (notamment avec la création de piste cyclable) et de sensibiliser la population (et en particulier les hommes de 20-30ans) sur les risques encourus lors les déplacements à vélo"
@@ -342,6 +371,7 @@ def plot_category(data):
         labels={"catr": "Type de routes", "percent": "Pourcentage d'accidents"},
         title="Répartition des accidents selon la catégorie de la route",
     )
+    fig.update_traces(marker_color="green")
     return fig
 
 
@@ -364,6 +394,7 @@ def plot_age(data):
         labels={"age": "Age", "percent": "Pourcentage d'accidents"},
         title="Répartition des accidents selon l'age",
     )
+    fig.update_traces(marker_color="orange")
     return fig
 
 
@@ -375,6 +406,7 @@ def plot_sex(data):
         labels={"sexe": "Sexe", "percent": "Pourcentage d'accidents"},
         title="Répartition des accidents selon le sexe",
     )
+    fig.update_traces(marker_color="#AB63FA")
     return fig
 
 
@@ -386,6 +418,7 @@ def plot_vitesse(data):
         labels={"vma": "Vitesse maximale autorisée (en km/h)", "percent": "Pourcentage d'accidents"},
         title="Répartition des accidents selon la vitesse maximale autorisée",
     )
+    fig.update_traces(marker_color="#B6E880")
     return fig
 
 
@@ -399,6 +432,18 @@ def plot_casque(data):
         labels={"grav": "Gravité de l'accident", "Nombre": "Nombre d'accidents"},
         title="Répartition des accidents par gravité selon le port ou non du casque",
     )
+    return fig
+
+
+def plot_trajet(data):
+    fig = px.bar(
+        data,
+        x=data.index,
+        y="percent",
+        labels={"trajet": "Type de trajet", "percent": "Pourcentage d'accidents"},
+        title="Répartition des accidents selon le type de trajet",
+    )
+    fig.update_traces(marker_color="#00CC96")
     return fig
 
 
