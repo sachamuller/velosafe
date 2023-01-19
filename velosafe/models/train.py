@@ -65,7 +65,8 @@ def grid_search(
     results = pd.DataFrame(grid_model.cv_results_).sort_values("rank_test_score")[
         ["params", "mean_test_score", "std_test_score", "mean_train_score", "std_train_score"]
     ]
-    results["params"] = results["params"].apply(
-        lambda params: {k.split("__", maxsplit=1)[1]: v for k, v in params.items()}
-    )
+    if scaler is not None:
+        results["params"] = results["params"].apply(
+            lambda params: {k.split("__", maxsplit=1)[1]: v for k, v in params.items()}
+        )
     return grid_model, results
