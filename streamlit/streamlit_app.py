@@ -35,7 +35,7 @@ def viz_page():
     st.write("---")
     col1, col2 = st.columns(2)
     with col1:
-        st.image("data/Undraw0.png")
+        st.image("./streamlit/resources/Undraw0.png")
     with col2:
         st.write(
             "L'étude suivante présente un état des lieux des accidents impliquant des vélos sur le territoire français et des solutions proposées afin de réduire le nombre d'accidents. "
@@ -219,7 +219,7 @@ def simulation_page():
     # Load train data
     train_data = pd.read_csv("./streamlit/resources/training_data.csv")
     code_comm = st.text_input("Code commune")
-    km_bikelane = st.text_input("Km de pistes cyclables à construire")
+    km_bikelane = st.text_input("Kilomètres de pistes cyclables à construire")
     if st.button("Valider"):
         if code_comm and km_bikelane:
             x_test = train_data[train_data["code_commune"] == code_comm]
