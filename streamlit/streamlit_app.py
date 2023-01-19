@@ -9,6 +9,26 @@ import streamlit as st
 from velosafe.models import load_model
 
 st.set_page_config(page_title="Accidentologie des vélos en France", page_icon="🔥")
+# Features of the regression model
+FEATURES = [
+    "population",
+    "area",
+    "accident_num",
+    "length",
+    "ACCOTEMENT REVETU HORS CVCB",
+    "AMENAGEMENT MIXTES PIETON VELO HORS VOIE VERTE",
+    "AUTRE",
+    "BANDE CYCLABLE",
+    "CHAUSSEE A VOIE CENTRALE BANALISEE",
+    "COULOIR BUS+VELO",
+    "DOUBLE SENS CYCLABLE BANDE",
+    "DOUBLE SENS CYCLABLE NON MATERIALISE",
+    "DOUBLE SENS CYCLABLE PISTE",
+    "GOULOTTE",
+    "PISTE CYCLABLE",
+    "VELO RUE",
+    "VOIE VERTE",
+]
 
 
 def viz_page():
@@ -210,16 +230,37 @@ def analyse_page():
 
 def simulation_page():
     st.write("# Simulation de l'impact de construction de pistes cyclables")
-
+    # Load model
+    model = load_model("./data/model.pkl")
+    # Load train data
+    train_data = pd.read_csv("./data/training_data.csv")
     code_comm = st.text_input("Code commune")
     km_bikelane = st.text_input("Km de pistes cyclables à construire")
-    # Load model
-    model = load_model("/data/model.pkl")
-    nb_accidents = np.random.randint(1, 10)
-
     if st.button("Valider"):
         if code_comm and km_bikelane:
-            st.metric(label="Nombre d'accidents", value=str(nb_accidents), delta="-5")
+            x_test = train_data[train_data["code_commune"] == code_comm]
+            x_test = x_test[FEATURES]
+            nb_accidents_before = x_test["accident_num"]
+            if x_test.shape[0] > 0:
+                x_test = x_test[x_test.columns.difference(["accident_num"])]
+                try:
+                    x_test["length"] += float(km_bikelane) * 1000
+                    nb_accidents_after = model.predict(x_test)
+                    st.metric(
+                        label="Nombre d'accidents",
+                        value=str(nb_accidents_after[0]),
+                        delta=str(
+                            (nb_accidents_after[0] - nb_accidents_before.values[0])
+                            / nb_accidents_before.values[0]
+                            * 100
+                        )
+                        + "%",
+                    )
+                except ValueError:
+                    st.error("Entrez un nombre flottant de kilomètres.")
+
+            else:
+                st.error("Cette commune n'existe pas.")
         else:
             st.error("Remplissez tous les champs")
 
@@ -251,9 +292,6 @@ def plot_france_map_accidents(data: pd.DataFrame, geodata: dict):
     )
 
     fig.update_traces(hovertemplate="Dep: %{location} <br>Nb accident: %{customdata[0]}")
-
-    # fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-
     return fig
 
 
