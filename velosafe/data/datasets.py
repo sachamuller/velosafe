@@ -46,10 +46,14 @@ class Datasets:
         md5sum="e336ce8b1b94318280fec8b96de9ed58",
         foldername_after_unzipping="ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03",
         path_files_to_keep={
-            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/\
-                R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp": "roads.shp",
-            "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/\
-                R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shx": "roads.shx",
+            (
+                "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/"
+                "R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shp"
+            ): "roads.shp",
+            (
+                "ROUTE500_3-0__SHP_LAMB93_FXX_2021-11-03/ROUTE500/1_DONNEES_LIVRAISON_2022-01-00175/"
+                "R500_3-0_SHP_LAMB93_FXX-ED211/RESEAU_ROUTIER/TRONCON_ROUTE.shx"
+            ): "roads.shx",
         },
         # Documentation : https://geoservices.ign.fr/sites/default/files/2021-12/DC_ROUTE500_3-0.pdf
     )

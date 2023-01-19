@@ -1,6 +1,6 @@
 import click
 
-from velosafe.data import Datasets
+from velosafe.data import Datasets, get_training_data
 
 
 @click.group()
@@ -31,7 +31,14 @@ def download(dataset, path):
     for dataset in datasets:
         click.echo(f"Downloading {dataset.filename}.")
         dataset.download(path)
-    click.echo(f"All done 🎉")
+    click.echo("All done 🎉")
+
+
+@cli.command()
+@click.argument("path", type=click.Path(), required=False, default="./data")
+def datagen(path):
+    get_training_data(data_folder=path)
+    click.echo("All done 🎉")
 
 
 if __name__ == "__main__":

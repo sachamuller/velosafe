@@ -47,7 +47,7 @@ def preprocess_accidents_dfs(
         if df_places.situ[i] == 5:
             df_places.piste_cyclable[i] = 1
 
-    # We merge on the number of accident taking on the left the 
+    # We merge on the number of accident taking on the left the
     # dataset on which we kept only the accidents that involved bikes
     accidents_df = df_vehicle_bike.merge(df_places, on="Num_Acc")
 
